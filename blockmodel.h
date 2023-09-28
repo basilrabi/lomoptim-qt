@@ -37,8 +37,8 @@ class MiningArea
     // elevation of the centroid of the top block
     double z;
 
-    std::vector<Block*> blocks;
-    std::vector<MiningArea*> adjacent_areas;
+    std::vector<std::shared_ptr<Block>> blocks;
+    std::vector<std::shared_ptr<MiningArea>> adjacent_areas;
     unsigned char excavated;
 
 public:
@@ -51,18 +51,35 @@ public:
 
 class BlockModel
 {
+    // Maximum allowable height of bench
+    double bench_height;
+
+    // Angle of the bench
+    double bench_slope;
+
+    // Annual mining limit in wet metric tons
+    double mining_limit;
+
+    // Block dimensions in meters.
+    double size_x;
+    double size_y;
+    double size_z;
+
     // Container for all mining areas
-    std::vector<MiningArea*> mining_areas;
+    std::vector<std::shared_ptr<MiningArea>> mining_areas;
 
     // Densities per rock type in tons per cubic meter
     std::vector<double> dry_densities;
+
+    // Required annual mining production per rock type in wet metric tons
+    std::vector<double> minimum_production;
 
     // Assumed insity moisture content of each rock type
     std::vector<double> moisture_content;
 
 public:
     BlockModel();
-    BlockModel(QString blocks, QString centroids, QString rocks);
+    BlockModel(QString blocks, QString centroids, QString rocks, double x, double y, double z);
     ~BlockModel();
 };
 

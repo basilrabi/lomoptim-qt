@@ -14,7 +14,7 @@
    <string>Life of Mine Optimizer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4">
+   <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -24,83 +24,95 @@
        <attribute name="title">
         <string>Block Model Data</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
+       <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>File Import</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_2">
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="0">
-            <widget class="QLineEdit" name="fileCollar"/>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
+              <string>File Import</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="1">
+               <widget class="QPushButton" name="pushButtonCollarCentroids">
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Select Collar Centroids CSV</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="pushButtonBlockData">
+                <property name="text">
+                 <string>Select Block Data CSV</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLineEdit" name="fileRock"/>
+              </item>
+              <item row="2" column="1">
+               <widget class="QPushButton" name="pushButtonRockInfo">
+                <property name="text">
+                 <string>Select Rock Info CSV</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLineEdit" name="fileCollar"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLineEdit" name="fileBlock"/>
+              </item>
+             </layout>
+            </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QPushButton" name="pushButtonCollarCentroids">
-             <property name="autoFillBackground">
-              <bool>false</bool>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
              </property>
-             <property name="text">
-              <string>Select Collar Centroids CSV</string>
+             <property name="title">
+              <string>Block Size (m)</string>
              </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLineEdit" name="fileBlock"/>
-           </item>
-           <item row="1" column="1">
-            <widget class="QPushButton" name="pushButtonBlockData">
-             <property name="text">
-              <string>Select Block Data CSV</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLineEdit" name="fileRock"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="pushButtonRockInfo">
-             <property name="text">
-              <string>Select Rock Info CSV</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>Block Size (m)</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="2" column="0">
-            <widget class="QDoubleSpinBox" name="sizeZ"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QDoubleSpinBox" name="sizeY"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Z</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QDoubleSpinBox" name="sizeX"/>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Y</string>
-             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="2" column="0">
+               <widget class="QDoubleSpinBox" name="sizeZ"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QDoubleSpinBox" name="sizeY"/>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Z</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QDoubleSpinBox" name="sizeX"/>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>X</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Y</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -108,8 +120,29 @@
         </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="pushButtonInitialize">
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Initialize</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLineEdit" name="message">
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

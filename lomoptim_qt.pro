@@ -7,6 +7,7 @@ CONFIG += c++17
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 SOURCES += \
+    blockmodel.cpp \
     main.cpp \
     mainwindow.cpp
 

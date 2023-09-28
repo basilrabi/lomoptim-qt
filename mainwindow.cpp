@@ -8,6 +8,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QColor readonly_background_color;
+    readonly_background_color.setNamedColor("#D2D2D2");
+    QPalette readonly_palette;
+    readonly_palette.setColor(QPalette::Base, readonly_background_color);
+    readonly_palette.setColor(QPalette::Text, Qt::darkGray);
+    ui->message->setPalette(readonly_palette);
 }
 
 MainWindow::~MainWindow()
@@ -35,26 +41,42 @@ void MainWindow::on_pushButtonRockInfo_clicked()
 
 void MainWindow::on_pushButtonInitialize_clicked()
 {
-    QString block = this->ui->fileBlock->text();
-    QString collar = this->ui->fileCollar->text();
-    QString rock = this->ui->fileRock->text();
-
-    if (block.isEmpty())
+    if (this->ui->fileBlock->text().isEmpty())
     {
         QMessageBox::information(this, "Message", QString("No selected block model file."));
         return;
     }
-    if (collar.isEmpty())
+    if (this->ui->fileCollar->text().isEmpty())
     {
         QMessageBox::information(this, "Message", QString("No selected collar data file."));
         return;
     }
-    if (rock.isEmpty())
+    if (this->ui->fileRock->text().isEmpty())
     {
         QMessageBox::information(this, "Message", QString("No selected rock data file."));
         return;
     }
-
-    QMessageBox::information(this, "Message", QString(block + "\n" + collar + "\n" + rock));
+    if (this->ui->sizeX->text().toDouble() < 0.01)
+    {
+        QMessageBox::information(this, "Message", QString("Size along X-axis should be greater than 0.00."));
+        return;
+    }
+    if (this->ui->sizeY->text().toDouble() < 0.01)
+    {
+        QMessageBox::information(this, "Message", QString("Size along Y-axis should be greater than 0.00."));
+        return;
+    }
+    if (this->ui->sizeZ->text().toDouble() < 0.01)
+    {
+        QMessageBox::information(this, "Message", QString("Size along Z-axis should be greater than 0.00."));
+        return;
+    }
+    this->blockmodel = std::make_shared<BlockModel>(this->ui->fileBlock->text(),
+                                                    this->ui->fileCollar->text(),
+                                                    this->ui->fileRock->text(),
+                                                    this->ui->sizeX->text().toDouble(),
+                                                    this->ui->sizeY->text().toDouble(),
+                                                    this->ui->sizeZ->text().toDouble());
+    this->ui->message->setText("Block model initialized.");
 }
 

@@ -3,6 +3,7 @@
 
 #include "blockmodel.h"
 #include <QMainWindow>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +25,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    BlockModel *blockmodel;
+    std::shared_ptr<BlockModel> blockmodel;
 };
 #endif // MAINWINDOW_H
