@@ -1,6 +1,7 @@
 #ifndef BLOCKMODEL_H
 #define BLOCKMODEL_H
 
+#include <QString>
 #include <vector>
 
 
@@ -19,6 +20,9 @@ class Block
     std::vector<double> revenues;
 
 public:
+    Block();
+    ~Block();
+
     double profit() const;
     std::vector<double> wmt() const;
 };
@@ -38,6 +42,9 @@ class MiningArea
     unsigned char excavated;
 
 public:
+    MiningArea();
+    ~MiningArea();
+
     bool canBeExcavated() const;
 };
 
@@ -50,8 +57,13 @@ class BlockModel
     // Densities per rock type in tons per cubic meter
     std::vector<double> dry_densities;
 
-    //
+    // Assumed insity moisture content of each rock type
     std::vector<double> moisture_content;
+
+public:
+    BlockModel();
+    BlockModel(QString blocks, QString centroids, QString rocks);
+    ~BlockModel();
 };
 
 #endif // BLOCKMODEL_H

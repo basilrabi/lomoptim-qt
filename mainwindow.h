@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "blockmodel.h"
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -17,10 +18,12 @@ public:
 
 private slots:
     void on_pushButtonCollarCentroids_clicked();
+    void on_pushButtonInitialize_clicked();
     void on_pushButtonBlockData_clicked();
     void on_pushButtonRockInfo_clicked();
 
 private:
     Ui::MainWindow *ui;
+    BlockModel *blockmodel;
 };
 #endif // MAINWINDOW_H
