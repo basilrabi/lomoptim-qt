@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     readonly_palette.setColor(QPalette::Base, readonly_background_color);
     readonly_palette.setColor(QPalette::Text, Qt::darkGray);
     ui->message->setPalette(readonly_palette);
+    ui->sizeX->setValue(10);
+    ui->sizeY->setValue(10);
+    ui->sizeZ->setValue(3);
 }
 
 MainWindow::~MainWindow()
@@ -77,6 +80,23 @@ void MainWindow::on_pushButtonInitialize_clicked()
                                                     this->ui->sizeX->text().toDouble(),
                                                     this->ui->sizeY->text().toDouble(),
                                                     this->ui->sizeZ->text().toDouble());
-    this->ui->message->setText("Block model initialized.");
+    if (this->blockmodel->isInitialized())
+    {
+        this->ui->message->setText("Block Model initialized.");
+        if (this->blockmodel->areaCount() > 0)
+        {
+            this->ui->message->setText(
+                        this->ui->message->text()
+                        + QString(" Area Count: ")
+                        + QString::number(this->blockmodel->areaCount())
+                        + QString(". Block Count: ")
+                        + QString::number(this->blockmodel->blockCount())
+                        );
+        }
+    }
+    else
+    {
+        this->ui->message->setText("Block Model failed to initialized.");
+    }
 }
 

@@ -42,15 +42,18 @@ class MiningArea
     unsigned char excavated;
 
 public:
-    MiningArea();
+    MiningArea(const double x_coordinates, const double y_coordinates, const double z_coordinates);
     ~MiningArea();
 
     bool canBeExcavated() const;
+    unsigned char blockCount() const;
 };
 
 
 class BlockModel
 {
+    bool initialized = 0;
+
     // Maximum allowable height of bench
     double bench_height;
 
@@ -79,8 +82,11 @@ class BlockModel
 
 public:
     BlockModel();
-    BlockModel(QString blocks, QString centroids, QString rocks, double x, double y, double z);
+    BlockModel(const QString blocks, const QString centroids, const QString rocks, const double x, const double y, const double z);
     ~BlockModel();
+    bool isInitialized() const;
+    unsigned long areaCount() const;
+    unsigned long long blockCount() const;
 };
 
 #endif // BLOCKMODEL_H
