@@ -2,8 +2,12 @@
 #include <QFile>
 #include <QMessageBox>
 
-MiningArea::MiningArea(const double x_coordinates, const double y_coordinates, const double z_coordinates)
+MiningArea::MiningArea(const double& x_coordinates,
+                       const double& y_coordinates,
+                       const double& z_coordinates,
+                       const unsigned long& id)
 {
+    this->id = id;
     this->x = x_coordinates;
     this->y = y_coordinates;
     this->z = z_coordinates;
@@ -11,12 +15,32 @@ MiningArea::MiningArea(const double x_coordinates, const double y_coordinates, c
 
 MiningArea::~MiningArea(){}
 
+point_value MiningArea::asPointValue() const
+{
+    return std::make_pair(this->asPoint2D(), this->getId());
+}
+
+point_2d MiningArea::asPoint2D() const
+{
+    return point_2d(this->x, this->y);
+}
+
 unsigned char MiningArea::blockCount() const
 {
     return this->blocks.size();
 }
 
-BlockModel::BlockModel(const QString blocks, const QString centroids, const QString rocks, const double x, const double y, const double z)
+unsigned long MiningArea::getId() const
+{
+    return this->id;
+}
+
+BlockModel::BlockModel(const QString& blocks,
+                       const QString& centroids,
+                       const QString& rocks,
+                       const double& x,
+                       const double& y,
+                       const double& z)
 {
     this->size_x = x;
     this->size_y = y;
@@ -78,10 +102,16 @@ BlockModel::BlockModel(const QString blocks, const QString centroids, const QStr
             }
             if (valid_centroid == 0)
             {
+                size_t idx = 0;
                 while (!in_centroid.atEnd()) {
                     line = in_centroid.readLine();
                     csv_entry = line.split(",");
-                    this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(), csv_entry.at(2).toDouble(), csv_entry.at(3).toDouble()));
+                    this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(),
+                                                                              csv_entry.at(2).toDouble(),
+                                                                              csv_entry.at(3).toDouble(),
+                                                                              idx));
+                    this->insertIndex(this->mining_areas[idx]->asPointValue());
+                    idx++;
                 }
             }
         }
@@ -113,4 +143,9 @@ unsigned long long BlockModel::blockCount() const
         block_count += mining_area->blockCount();
     }
     return block_count;
+}
+
+void BlockModel::insertIndex(const point_value& pv)
+{
+    this->index.insert(pv);
 }

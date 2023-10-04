@@ -13,6 +13,7 @@ SOURCES += \
 
 HEADERS += \
     blockmodel.h \
+    boost.h \
     mainwindow.h
 
 FORMS += \
