@@ -8,20 +8,20 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QColor readonly_background_color;
-    readonly_background_color.setNamedColor("#D2D2D2");
-    QPalette readonly_palette;
-    readonly_palette.setColor(QPalette::Base, readonly_background_color);
-    readonly_palette.setColor(QPalette::Text, Qt::darkGray);
-    ui->message->setPalette(readonly_palette);
     ui->sizeX->setValue(10);
     ui->sizeY->setValue(10);
     ui->sizeZ->setValue(3);
+    ui->log->show();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_clearButton_clicked()
+{
+    ui->log->clear();
 }
 
 void MainWindow::on_pushButtonBlockData_clicked()
@@ -79,15 +79,15 @@ void MainWindow::on_pushButtonInitialize_clicked()
                                                     this->ui->fileRock->text(),
                                                     this->ui->sizeX->text().toDouble(),
                                                     this->ui->sizeY->text().toDouble(),
-                                                    this->ui->sizeZ->text().toDouble());
+                                                    this->ui->sizeZ->text().toDouble(),
+                                                    this->ui->log);
     if (this->blockmodel->isInitialized())
     {
-        this->ui->message->setText("Block Model initialized.");
+        this->ui->log->append("Block Model initialized.");
         if (this->blockmodel->areaCount() > 0)
         {
-            this->ui->message->setText(
-                        this->ui->message->text()
-                        + QString(" Area Count: ")
+            this->ui->log->append(
+                        QString("Area Count: ")
                         + QString::number(this->blockmodel->areaCount())
                         + QString(". Block Count: ")
                         + QString::number(this->blockmodel->blockCount())
@@ -96,7 +96,6 @@ void MainWindow::on_pushButtonInitialize_clicked()
     }
     else
     {
-        this->ui->message->setText("Block Model failed to initialized.");
+        this->ui->log->append("Block Model failed to initialized.");
     }
 }
-

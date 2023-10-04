@@ -5,15 +5,24 @@
 MiningArea::MiningArea(const double& x_coordinates,
                        const double& y_coordinates,
                        const double& z_coordinates,
-                       const unsigned long& id)
+                       const size_t& id,
+                       QTextBrowser *log)
 {
     this->id = id;
+    this->log = log;
     this->x = x_coordinates;
     this->y = y_coordinates;
     this->z = z_coordinates;
 }
 
 MiningArea::~MiningArea(){}
+
+box_2d MiningArea::asBox2D(const double& size_x, const double& size_y) const
+{
+    box_2d area(point_2d(this->x - size_x - (size_x / 2), this->y - size_y - (size_y / 2)),
+                point_2d(this->x + size_x + (size_x / 2), this->y + size_y + (size_y / 2)));
+    return area;
+}
 
 point_value MiningArea::asPointValue() const
 {
@@ -35,13 +44,20 @@ unsigned long MiningArea::getId() const
     return this->id;
 }
 
+void MiningArea::setAdjacentArea(std::vector<std::shared_ptr<MiningArea>> adjacent_areas)
+{
+    this->adjacent_areas = adjacent_areas;
+}
+
 BlockModel::BlockModel(const QString& blocks,
                        const QString& centroids,
                        const QString& rocks,
                        const double& x,
                        const double& y,
-                       const double& z)
+                       const double& z,
+                       QTextBrowser *log)
 {
+    this->log = log;
     this->size_x = x;
     this->size_y = y;
     this->size_z = z;
@@ -51,7 +67,7 @@ BlockModel::BlockModel(const QString& blocks,
     QFile centroid_csv(centroids);
     if (!centroid_csv.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Error: Could not open the file";
+        log->append(QString("Error: Could not open centroid file."));
     }
     else
     {
@@ -103,13 +119,15 @@ BlockModel::BlockModel(const QString& blocks,
             if (valid_centroid == 0)
             {
                 size_t idx = 0;
-                while (!in_centroid.atEnd()) {
+                while (!in_centroid.atEnd())
+                {
                     line = in_centroid.readLine();
                     csv_entry = line.split(",");
                     this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(),
                                                                               csv_entry.at(2).toDouble(),
                                                                               csv_entry.at(3).toDouble(),
-                                                                              idx));
+                                                                              idx,
+                                                                              log));
                     this->insertIndex(this->mining_areas[idx]->asPointValue());
                     idx++;
                 }
@@ -117,8 +135,10 @@ BlockModel::BlockModel(const QString& blocks,
         }
     }
     centroid_csv.close();
+
     if (valid_centroid == 0)
     {
+        this->populateAdjacentMiningArea();
         this->initialized = 1;
     }
 }
@@ -128,6 +148,21 @@ BlockModel::~BlockModel(){}
 bool BlockModel::isInitialized() const
 {
     return this->initialized;
+}
+
+std::vector<std::shared_ptr<MiningArea>> BlockModel::getAdjacentAreas(std::shared_ptr<MiningArea> mining_area)
+{
+    std::vector<std::shared_ptr<MiningArea>> area_list;
+    std::vector<point_value> adjacent_values;
+    this->index.query(boost::geometry::index::intersects(mining_area->asBox2D(this->size_x, this->size_y)), std::back_inserter(adjacent_values));
+    for (auto& adjacent_value : adjacent_values)
+    {
+        if (mining_area->getId() != std::get<1>(adjacent_value))
+        {
+            area_list.push_back(this->mining_areas[std::get<1>(adjacent_value)]);
+        }
+    }
+    return area_list;
 }
 
 unsigned long BlockModel::areaCount() const
@@ -148,4 +183,12 @@ unsigned long long BlockModel::blockCount() const
 void BlockModel::insertIndex(const point_value& pv)
 {
     this->index.insert(pv);
+}
+
+void BlockModel::populateAdjacentMiningArea()
+{
+    for (auto& mining_area : this->mining_areas)
+    {
+        mining_area->setAdjacentArea(this->getAdjacentAreas(mining_area));
+    }
 }

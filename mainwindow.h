@@ -18,6 +18,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void on_clearButton_clicked();
     void on_pushButtonCollarCentroids_clicked();
     void on_pushButtonInitialize_clicked();
     void on_pushButtonBlockData_clicked();
