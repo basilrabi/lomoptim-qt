@@ -1,4 +1,5 @@
 #include "blockmodel.h"
+#include <QDateTime>
 #include <QFile>
 #include <QMessageBox>
 
@@ -44,6 +45,11 @@ unsigned long MiningArea::getId() const
     return this->id;
 }
 
+void MiningArea::appendLog(const QString& message)
+{
+    this->log->append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ") + message);
+}
+
 void MiningArea::setAdjacentArea(std::vector<std::shared_ptr<MiningArea>> adjacent_areas)
 {
     this->adjacent_areas = adjacent_areas;
@@ -67,7 +73,7 @@ BlockModel::BlockModel(const QString& blocks,
     QFile centroid_csv(centroids);
     if (!centroid_csv.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        log->append(QString("Error: Could not open centroid file."));
+        this->appendLog("Error: Could not open centroid file.");
     }
     else
     {
@@ -118,18 +124,43 @@ BlockModel::BlockModel(const QString& blocks,
             }
             if (valid_centroid == 0)
             {
-                size_t idx = 0;
+                long idx = -1;
                 while (!in_centroid.atEnd())
                 {
                     line = in_centroid.readLine();
                     csv_entry = line.split(",");
-                    this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(),
-                                                                              csv_entry.at(2).toDouble(),
-                                                                              csv_entry.at(3).toDouble(),
-                                                                              idx,
-                                                                              log));
-                    this->insertIndex(this->mining_areas[idx]->asPointValue());
-                    idx++;
+                    if (csv_entry.at(0).toLong() > (idx + 1))
+                    {
+                        if (csv_entry.at(0).toLong() - (idx + 1) > 1)
+                        {
+                            this->appendLog("Error: id column skipped at "
+                                            + csv_entry.at(0)
+                                            + ".");
+                            valid_centroid++;
+                            break;
+                        }
+                        idx = csv_entry.at(0).toLong() - 1;
+                        this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(),
+                                                                                  csv_entry.at(2).toDouble(),
+                                                                                  csv_entry.at(3).toDouble(),
+                                                                                  (size_t) idx,
+                                                                                  log));
+                        this->insertIndex(this->mining_areas[(size_t) idx]->asPointValue());
+                    }
+                    else if ((csv_entry.at(0).toLong() == (idx + 1)))
+                    {
+                        this->appendLog("Error: id column duplicated at "
+                                        + csv_entry.at(0)
+                                        + ".");
+                        valid_centroid++;
+                        break;
+                    }
+                    else
+                    {
+                        this->appendLog("Error: id column in collar csv is not sorted in ascending order.");
+                        valid_centroid++;
+                        break;
+                    }
                 }
             }
         }
@@ -178,6 +209,11 @@ unsigned long long BlockModel::blockCount() const
         block_count += mining_area->blockCount();
     }
     return block_count;
+}
+
+void BlockModel::appendLog(const QString& message)
+{
+    this->log->append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ") + message);
 }
 
 void BlockModel::insertIndex(const point_value& pv)

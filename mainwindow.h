@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void appendLog(const QString& message);
 
 private slots:
     void on_clearButton_clicked();

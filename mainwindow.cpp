@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -17,6 +18,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::appendLog(const QString& message)
+{
+    ui->log->append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ") + message);
 }
 
 void MainWindow::on_clearButton_clicked()
@@ -83,19 +89,17 @@ void MainWindow::on_pushButtonInitialize_clicked()
                                                     this->ui->log);
     if (this->blockmodel->isInitialized())
     {
-        this->ui->log->append("Block Model initialized.");
+        this->appendLog("Block Model initialized.");
         if (this->blockmodel->areaCount() > 0)
         {
-            this->ui->log->append(
-                        QString("Area Count: ")
-                        + QString::number(this->blockmodel->areaCount())
-                        + QString(". Block Count: ")
-                        + QString::number(this->blockmodel->blockCount())
-                        );
+            this->appendLog(QString("Area Count: ")
+                            + QString::number(this->blockmodel->areaCount())
+                            + QString(". Block Count: ")
+                            + QString::number(this->blockmodel->blockCount()));
         }
     }
     else
     {
-        this->ui->log->append("Block Model failed to initialized.");
+        this->appendLog("Block Model failed to initialized.");
     }
 }

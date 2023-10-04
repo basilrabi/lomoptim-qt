@@ -73,6 +73,9 @@ public:
     // Returns the id of the mining area.
     unsigned long getId() const;
 
+    // Logs a message with time stamp.
+    void appendLog(const QString& message);
+
     // Sets adjacent_areas;
     void setAdjacentArea(std::vector<std::shared_ptr<MiningArea>> adjacent_areas);
 };
@@ -136,6 +139,9 @@ public:
 
     // Returns the number of blocks in the BlockModel.
     unsigned long long blockCount() const;
+
+    // Logs a message with time stamp.
+    void appendLog(const QString& message);
 
     // Inserts a point_value to the R-Tree index.
     void insertIndex(const point_value& pv);
