@@ -35,12 +35,12 @@ point_2d MiningArea::asPoint2D() const
     return point_2d(this->x, this->y);
 }
 
-unsigned char MiningArea::blockCount() const
+size_t MiningArea::blockCount() const
 {
     return this->blocks.size();
 }
 
-unsigned long MiningArea::getId() const
+size_t MiningArea::getId() const
 {
     return this->id;
 }
@@ -68,6 +68,10 @@ BlockModel::BlockModel(const QString& blocks,
     this->size_y = y;
     this->size_z = z;
 
+    QString guide;
+    QString line;
+    QStringList csv_entry;
+
     unsigned char valid_centroid = 4;
 
     QFile centroid_csv(centroids);
@@ -77,22 +81,20 @@ BlockModel::BlockModel(const QString& blocks,
     }
     else
     {
-        QString line;
-        QStringList csv_entry;
         QTextStream in_centroid(&centroid_csv);
         line = in_centroid.readLine();
         csv_entry = line.split(",");
-        QString collar_guide = "Acceptable Collar CSV should only contain the following headers in order:\nid, x, y, z";
+        guide = "Acceptable Collar CSV should only contain the following headers in order:\nid, x, y, z";
         if (csv_entry.size() != 4)
         {
-            QMessageBox::information(NULL, "Message", collar_guide);
+            QMessageBox::information(NULL, "Message", guide);
         }
         else
         {
             if (csv_entry.at(0) != QString("id"))
             {
-                collar_guide += QString("\n1st header should be 'id'");
-                QMessageBox::information(NULL, "Message", collar_guide);
+                guide += QString("\n1st header should be 'id'.");
+                QMessageBox::information(NULL, "Message", guide);
             }
             else
             {
@@ -100,7 +102,7 @@ BlockModel::BlockModel(const QString& blocks,
             }
             if (csv_entry.at(1) != QString("x"))
             {
-                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'x'"));
+                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'x'."));
             }
             else
             {
@@ -108,7 +110,104 @@ BlockModel::BlockModel(const QString& blocks,
             }
             if (csv_entry.at(2) != QString("y"))
             {
-                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'y'"));
+                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'y'."));
+            }
+            else
+            {
+                valid_centroid--;
+            }
+            if (csv_entry.at(3) != QString("z"))
+            {
+                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'z'."));
+            }
+            else
+            {
+                valid_centroid--;
+            }
+            if (valid_centroid == 0)
+            {
+                long idx = -1;
+                while (!in_centroid.atEnd())
+                {
+                    line = in_centroid.readLine();
+                    csv_entry = line.split(",");
+                    if (csv_entry.at(0).toLong() > (idx + 1))
+                    {
+                        if (csv_entry.at(0).toLong() - (idx + 1) > 1)
+                        {
+                            this->appendLog("Error: id column skipped at "
+                                            + csv_entry.at(0)
+                                            + ".");
+                            valid_centroid++;
+                            break;
+                        }
+                        idx = csv_entry.at(0).toLong() - 1;
+                        this->mining_areas.push_back(std::make_shared<MiningArea>(csv_entry.at(1).toDouble(),
+                                                                                  csv_entry.at(2).toDouble(),
+                                                                                  csv_entry.at(3).toDouble(),
+                                                                                  (size_t) idx,
+                                                                                  log));
+                        this->insertIndex(this->mining_areas[(size_t) idx]->asPointValue());
+                    }
+                    else if ((csv_entry.at(0).toLong() == (idx + 1)))
+                    {
+                        this->appendLog("Error: id column duplicated at "
+                                        + csv_entry.at(0)
+                                        + ".");
+                        valid_centroid++;
+                        break;
+                    }
+                    else
+                    {
+                        this->appendLog("Error: id column in collar csv is not sorted in ascending order.");
+                        valid_centroid++;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    centroid_csv.close();
+
+    unsigned char valid_rock = 4;
+
+    QFile rock_csv(rocks);
+    if (!rock_csv.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        this->appendLog("Error: Could not open rock information file.");
+    }
+    else
+    {
+        QTextStream in_rock(&rock_csv);
+        line = in_rock.readLine();
+        csv_entry = line.split(",");
+        guide = "Acceptable Rock Info CSV should only contain the following headers in order:\nid, name, dry_density, moisture";
+        if (csv_entry.size() != 4)
+        {
+            QMessageBox::information(NULL, "Message", guide);
+        }
+        else
+        {
+            if (csv_entry.at(0) != QString("id"))
+            {
+                guide += QString("\n1st header should be 'id'.");
+                QMessageBox::information(NULL, "Message", guide);
+            }
+            else
+            {
+                valid_rock--;
+            }
+            if (csv_entry.at(1) != QString("name"))
+            {
+                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'name'."));
+            }
+            else
+            {
+                valid_rock--;
+            }
+            if (csv_entry.at(2) != QString("dry_density"))
+            {
+                QMessageBox::information(NULL, "Message", QString("2nd header shoud be 'dry_density'."));
             }
             else
             {
@@ -181,6 +280,21 @@ bool BlockModel::isInitialized() const
     return this->initialized;
 }
 
+size_t BlockModel::areaCount() const
+{
+    return this->mining_areas.size();
+}
+
+size_t BlockModel::blockCount() const
+{
+    size_t block_count = 0;
+    for (auto& mining_area : this->mining_areas)
+    {
+        block_count += mining_area->blockCount();
+    }
+    return block_count;
+}
+
 std::vector<std::shared_ptr<MiningArea>> BlockModel::getAdjacentAreas(std::shared_ptr<MiningArea> mining_area)
 {
     std::vector<std::shared_ptr<MiningArea>> area_list;
@@ -194,21 +308,6 @@ std::vector<std::shared_ptr<MiningArea>> BlockModel::getAdjacentAreas(std::share
         }
     }
     return area_list;
-}
-
-unsigned long BlockModel::areaCount() const
-{
-    return this->mining_areas.size();
-}
-
-unsigned long long BlockModel::blockCount() const
-{
-    unsigned long long block_count = 0;
-    for (auto& mining_area : this->mining_areas)
-    {
-        block_count += mining_area->blockCount();
-    }
-    return block_count;
 }
 
 void BlockModel::appendLog(const QString& message)

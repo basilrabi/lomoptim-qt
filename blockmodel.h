@@ -20,6 +20,10 @@ class Block
     // Revenue in PhP per WMT
     std::vector<double> revenues;
 
+    // Elemental constituents per rock type.
+    // The primary dimension of the vector defines the rock type while the secondary dimension is the elemental constituent in percentage.
+    std::vector<std::vector<float>> elemental_consituents;
+
 public:
     Block();
     ~Block();
@@ -43,7 +47,6 @@ class MiningArea
     std::vector<std::shared_ptr<Block>> blocks;
     std::vector<std::shared_ptr<MiningArea>> adjacent_areas;
     size_t id;
-    unsigned char excavated;
 
 public:
     MiningArea(const double& x_coordinates,
@@ -52,9 +55,6 @@ public:
                const size_t& id,
                QTextBrowser *log);
     ~MiningArea();
-
-    // Checks whether the exposed area can be excavated by applying the design parameters constraints.
-    bool canBeExcavated() const;
 
     // Returns the bounding box of the area which also covers nearby mining areas.
     // The dimensions of the bounding box will be X = 2 * size_x and Y = 2 * size_y.
@@ -68,16 +68,33 @@ public:
     point_value asPointValue() const;
 
     // Returns the number of blocks within the mining area.
-    unsigned char blockCount() const;
+    size_t blockCount() const;
 
     // Returns the id of the mining area.
-    unsigned long getId() const;
+    size_t getId() const;
+
+    // Returns a vector with length blockCount() containing identical getId()
+    std::vector<size_t> getVectorizedId();
 
     // Logs a message with time stamp.
     void appendLog(const QString& message);
 
     // Sets adjacent_areas;
     void setAdjacentArea(std::vector<std::shared_ptr<MiningArea>> adjacent_areas);
+};
+
+
+class SimulatedMiningArea
+{
+    std::shared_ptr<MiningArea> mining_area;
+    unsigned char excavated;
+
+public:
+    SimulatedMiningArea(std::shared_ptr<MiningArea> mining_area);
+    ~SimulatedMiningArea();
+
+    // Checks whether the exposed area can be excavated by applying the design parameters constraints.
+    bool canBeExcavated() const;
 };
 
 
@@ -105,6 +122,7 @@ class BlockModel
     rtree_t index;
 
     std::vector<QString> rock_types;
+    std::vector<QString> elemental_contituents;
 
     // Container for all mining areas.
     std::vector<std::shared_ptr<MiningArea>> mining_areas;
@@ -115,7 +133,7 @@ class BlockModel
     // Required annual mining production per rock type in wet metric tons.
     std::vector<double> minimum_production;
 
-    // Assumed insity moisture content of each rock type.
+    // Assumed insity moisture content of each rock type in percentage.
     std::vector<double> moisture_content;
 
 public:
@@ -131,14 +149,14 @@ public:
     // Checks the BlockModel if properly initialized.
     bool isInitialized() const;
 
-    // Returns the vector of MiningAreas adjacent to the input MiningArea.
-    std::vector<std::shared_ptr<MiningArea>> getAdjacentAreas(std::shared_ptr<MiningArea> mining_area);
-
     // Returns the number of areas in the BlockModel.
-    unsigned long areaCount() const;
+    size_t areaCount() const;
 
     // Returns the number of blocks in the BlockModel.
-    unsigned long long blockCount() const;
+    size_t blockCount() const;
+
+    // Returns the vector of MiningAreas adjacent to the input MiningArea.
+    std::vector<std::shared_ptr<MiningArea>> getAdjacentAreas(std::shared_ptr<MiningArea> mining_area);
 
     // Logs a message with time stamp.
     void appendLog(const QString& message);
